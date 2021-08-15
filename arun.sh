@@ -1,2 +1,2 @@
-gcc ransomware.c -o ransomware
+gcc ransomware.c -o ransomware -lmcrypt
 ./ransomware

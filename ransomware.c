@@ -91,13 +91,52 @@ void encrypt_file(char * path){
         printf("Please check whether file exists and you have read/write privilege.\n");
         exit(EXIT_SUCCESS);
     }
-    char* buffer = (char*)malloc(sizeof(char*)*1024);
+    char* buffer = calloc(1, 16);
 
     while ((fgets(buffer, 16, fp)) != NULL)
     {
+        buffer[strlen(buffer) -1] = '\0';
+        printf("%s\n", buffer);
         // Replace all occurrence of word from current line
         encrypt(buffer, 16, IV, key, keysize);
 
+        // After replacing write it to temp file.
+        fputs(buffer, fp_temp);
+    }
+    free(buffer);
+    fclose(fp);
+    fclose(fp_temp);
+
+    /* Delete original source file */
+    remove(path);
+
+    /* Rename temp file as original file */
+    char * cmd = (char*) malloc(sizeof(char*)*1000);
+    sprintf(cmd,"cp %s %s", "temp.tmp", path);
+    system(cmd);
+    free(cmd);
+    remove("temp.tmp");
+}
+
+void decrypt_file(char * path){
+    FILE *fp = fopen(path, "r");
+    FILE *fp_temp = fopen("temp.tmp", "w");
+
+    if (fp == NULL || fp_temp == NULL)
+    {
+        /* Unable to open file hence exit */
+        printf("\nUnable to open file.\n");
+        printf("Please check whether file exists and you have read/write privilege.\n");
+        exit(EXIT_SUCCESS);
+    }
+    char* buffer = (char*)malloc(sizeof(char*)*16);
+
+    while ((fgets(buffer, 17, fp)) != NULL)
+    {
+        printf("%d\n", strlen(buffer));
+        // Replace all occurrence of word from current line
+        decrypt(buffer, 16, IV, key, keysize);
+        printf("%s\n", buffer);
         // After replacing write it to temp file.
         fputs(buffer, fp_temp);
     }
@@ -116,6 +155,7 @@ void encrypt_file(char * path){
     free(cmd);
 }
 
+
 int main()
 {
     list_all_files = malloc(1000*sizeof(char*));
@@ -125,10 +165,25 @@ int main()
     for(int i =0; i< count_files; i++)
         printf("%s\n", list_all_files[i]);
     encrypt_file(list_all_files[0]);
-
+    decrypt_file(list_all_files[0]);
     //MCRYPT td, td2;
     //decrypt(buffer1, 16, IV, key, keysize);
     //printf("decrypt: %s\n", buffer1);
+    char* plaintext = "123456789";
+    char* buffer;
+    int buffer_len = 16;
 
+    buffer = calloc(1, buffer_len);
+    strncpy(buffer, plaintext, buffer_len);
+    printf("%d\n", strlen(plaintext));
+    printf("%d\n", strlen(buffer));
+    printf("==C==\n");
+    printf("plain:   %s\n", buffer);
+    encrypt(buffer, buffer_len, IV, key, keysize); 
+    printf("cipher:  %s\n", buffer);
+    printf("%d\n", strlen(buffer));
+
+    //decrypt(buffer, buffer_len, IV, key, keysize);
+    //printf("decrypt: %s\n", buffer);
     return(0);
 }
