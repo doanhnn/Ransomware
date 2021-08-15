@@ -91,14 +91,15 @@ void encrypt_file(char * path){
         printf("Please check whether file exists and you have read/write privilege.\n");
         exit(EXIT_SUCCESS);
     }
-    char* buffer = calloc(1, 16);
+    char* buffer = calloc(1, 1027);
 
-    while ((fgets(buffer, 16, fp)) != NULL)
+    while ((fgets(buffer, 1026, fp)) != NULL)
     {
-        buffer[strlen(buffer) -1] = '\0';
-        printf("%s\n", buffer);
+        //buffer[strlen(buffer) -1] = '\0';
+        printf("%d\n", strlen(buffer));
+
         // Replace all occurrence of word from current line
-        encrypt(buffer, 16, IV, key, keysize);
+        encrypt(buffer, 1026, IV, key, keysize);
 
         // After replacing write it to temp file.
         fputs(buffer, fp_temp);
@@ -129,13 +130,13 @@ void decrypt_file(char * path){
         printf("Please check whether file exists and you have read/write privilege.\n");
         exit(EXIT_SUCCESS);
     }
-    char* buffer = (char*)malloc(sizeof(char*)*16);
+    char* buffer = (char*)malloc(sizeof(char*)*1026);
 
-    while ((fgets(buffer, 17, fp)) != NULL)
+    while ((fgets(buffer, 1027, fp)) != NULL)
     {
         printf("%d\n", strlen(buffer));
         // Replace all occurrence of word from current line
-        decrypt(buffer, 16, IV, key, keysize);
+        decrypt(buffer, 1026, IV, key, keysize);
         printf("%s\n", buffer);
         // After replacing write it to temp file.
         fputs(buffer, fp_temp);
@@ -162,26 +163,28 @@ int main()
 
     char path[1000]="/home/doanhnn/linux/test";
     list_files(path);
-    for(int i =0; i< count_files; i++)
+    for(int i =0; i< count_files; i++){
         printf("%s\n", list_all_files[i]);
-    encrypt_file(list_all_files[0]);
-    decrypt_file(list_all_files[0]);
+        encrypt_file(list_all_files[i]);
+        decrypt_file(list_all_files[i]);
+    }
+    //encrypt_file("/home/doanhnn/linux/test/word/document2.xml");
     //MCRYPT td, td2;
     //decrypt(buffer1, 16, IV, key, keysize);
     //printf("decrypt: %s\n", buffer1);
-    char* plaintext = "123456789";
-    char* buffer;
-    int buffer_len = 16;
+    //char* plaintext = "1234567890123456";
+    //char* buffer;
+    //int buffer_len = 20;
 
-    buffer = calloc(1, buffer_len);
-    strncpy(buffer, plaintext, buffer_len);
-    printf("%d\n", strlen(plaintext));
-    printf("%d\n", strlen(buffer));
-    printf("==C==\n");
-    printf("plain:   %s\n", buffer);
-    encrypt(buffer, buffer_len, IV, key, keysize); 
-    printf("cipher:  %s\n", buffer);
-    printf("%d\n", strlen(buffer));
+    //buffer = calloc(1, buffer_len);
+    //strncpy(buffer, plaintext, buffer_len);
+    //printf("%d\n", strlen(plaintext));
+    //printf("%d\n", strlen(buffer));
+    //printf("==C==\n");
+    //printf("plain:   %s\n", buffer);
+    //encrypt(buffer, buffer_len, IV, key, keysize); 
+    //printf("cipher:  %s\n", buffer);
+    //printf("%d\n", strlen(buffer));
 
     //decrypt(buffer, buffer_len, IV, key, keysize);
     //printf("decrypt: %s\n", buffer);
