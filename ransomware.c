@@ -91,18 +91,18 @@ void encrypt_file(char * path){
         printf("Please check whether file exists and you have read/write privilege.\n");
         exit(EXIT_SUCCESS);
     }
-    char* buffer = calloc(1, 1027);
+    char* buffer = calloc(1, 16);
 
-    while ((fgets(buffer, 1026, fp)) != NULL)
+    while ((fgets(buffer, 17, fp)) != NULL)
     {
-        //buffer[strlen(buffer) -1] = '\0';
-        printf("%d\n", strlen(buffer));
-
+        printf("Buffer: %s | %d\n", buffer, strlen(buffer));
         // Replace all occurrence of word from current line
-        encrypt(buffer, 1026, IV, key, keysize);
+        encrypt(buffer, 16, IV, key, keysize);
+        printf("Encrypt: %s | %d\n", buffer,strlen(buffer));
 
         // After replacing write it to temp file.
         fputs(buffer, fp_temp);
+        fflush(fp_temp);
     }
     free(buffer);
     fclose(fp);
@@ -130,16 +130,17 @@ void decrypt_file(char * path){
         printf("Please check whether file exists and you have read/write privilege.\n");
         exit(EXIT_SUCCESS);
     }
-    char* buffer = (char*)malloc(sizeof(char*)*1026);
+    char* buffer = calloc(1, 16);
 
-    while ((fgets(buffer, 1027, fp)) != NULL)
+    while ((fgets(buffer, 17, fp)) != NULL)
     {
-        printf("%d\n", strlen(buffer));
+        printf("Buffer: %s | %d\n", buffer, strlen(buffer));
         // Replace all occurrence of word from current line
-        decrypt(buffer, 1026, IV, key, keysize);
-        printf("%s\n", buffer);
+        decrypt(buffer, 16, IV, key, keysize);
+        printf("Decrypt: %s | %n\n", buffer, strlen(buffer));
         // After replacing write it to temp file.
         fputs(buffer, fp_temp);
+        fflush(fp_temp);
     }
     free(buffer);
     fclose(fp);
@@ -151,7 +152,6 @@ void decrypt_file(char * path){
     /* Rename temp file as original file */
     char * cmd = (char*) malloc(sizeof(char*)*1000);
     sprintf(cmd,"cp %s %s", "temp.tmp", path);
-    printf("%s\n", cmd);
     system(cmd);
     free(cmd);
 }
