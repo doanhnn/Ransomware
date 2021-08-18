@@ -11,7 +11,8 @@ int count_files = 0;
 char* IV = "AAAAAAAAAAAAAAAA";
 char* key = "0123456789abcdef";
 int keysize = 16; /* 128 bits */
-
+int buffer_length = 17;
+unsigned char buffer[17];
 
 void list_files(char * path){
     DIR *d = opendir(path);
@@ -35,43 +36,30 @@ void list_files(char * path){
     }
 }
 
-char* encrypt(char* plaintext){
-    char* buffer;
-    buffer = calloc(1, 80);
-    strncpy(buffer, plaintext, 80);
+int encrypt(void* buffer){
     MCRYPT td = mcrypt_module_open("rijndael-128", NULL, "cbc", NULL);
     int blocksize = mcrypt_enc_get_block_size(td);
     //if( buffer_len % blocksize != 0 ){return 1;}
 
     mcrypt_generic_init(td, key, 16, IV);
-    mcrypt_generic(td, buffer, 80);
+    mcrypt_generic(td, buffer, buffer_length);
     mcrypt_generic_deinit (td);
     mcrypt_module_close(td);
 
-    return buffer;
+    return 0;
 }
 
-char* decrypt(char* cipher){
-    char* buffer;
-    buffer = calloc(1, 80);
-    strncpy(buffer, cipher, 80);
+int decrypt(void* buffer){
     MCRYPT td = mcrypt_module_open("rijndael-128", NULL, "cbc", NULL);
     int blocksize = mcrypt_enc_get_block_size(td);
     //if( buffer_len % blocksize != 0 ){return 1;}
 
     mcrypt_generic_init(td, key, 16, IV);
-    mdecrypt_generic(td, buffer, 80);
+    mdecrypt_generic(td, buffer, buffer_length);
     mcrypt_generic_deinit (td);
     mcrypt_module_close(td);
 
-    return buffer;
-}
-
-char * find_directory_of_file(char * path){
-    char * tmp = (char*)malloc(sizeof(char*)*1000);
-    tmp = strrchr(path, '/');
-    path[strlen(path) - strlen(tmp) + 1] = '\0';
-    return path;
+    return 0;
 }
 
 void encrypt_file(char * path){
@@ -86,33 +74,23 @@ void encrypt_file(char * path){
         exit(EXIT_SUCCESS);
     }
     fseek(fp, SEEK_SET, 0);
-    char* plaintext = calloc(1, 80);
 
-    while ((fread(plaintext, 1, 76,fp)))
+    while (!feof(fp))
     {
-        if (strcmp(plaintext, "\n") != 0 && !feof(fp)){
-            printf("Plaintext: %s | %d\n\n", plaintext, strlen(plaintext));
-            // Replace all occurrence of word from current line
-            printf("Encrypt: %s | %d\n\n", encrypt(plaintext),strlen(encrypt(plaintext)));
-
-            // After replacing write it to temp file.
-            fwrite(encrypt(plaintext), 1, 80, fp_temp);
-            fflush(fp_temp);
+        fread(buffer, 1, 16,fp);
+        if (feof(fp)){
+            int i = 0;
+            while(buffer[i] != '\n' && i < 16) i++;
+            buffer[i] = '\0';
         }
-        else {
-            char * tmp = calloc(1, 80);
-            tmp = strrchr(plaintext, '\n');
-            plaintext[strlen(plaintext) - strlen(tmp) + 1] = '\0';
-            printf("Plaintext: %s | %d\n\n", plaintext, strlen(plaintext));
-            // Replace all occurrence of word from current line
-            printf("Encrypt: %s | %d\n\n", encrypt(plaintext),strlen(encrypt(plaintext)));
+        printf("Plaintext: %s | %d\n\n", buffer, strlen(buffer));
+        encrypt(buffer);
+        printf("Encrypt: %s | %d\n\n", buffer,strlen(buffer));
 
-            // After replacing write it to temp file.
-            fwrite(encrypt(plaintext), 1, 80, fp_temp);
-            fflush(fp_temp);
-        }
+        fwrite(buffer, 1, 16, fp_temp);
+        fflush(fp_temp);
+        memset(buffer, '\0', buffer_length);
     }
-    free(plaintext);
     fclose(fp);
     fclose(fp_temp);
 
@@ -138,19 +116,18 @@ void decrypt_file(char * path){
         printf("Please check whether file exists and you have read/write privilege.\n");
         exit(EXIT_SUCCESS);
     }
-    fseek(fp, SEEK_SET, 0);
-    char* cipher = calloc(1, 80);
+    //fseek(fp, SEEK_SET, 0);
 
-    while ((fread(cipher, 1, 80,fp)))
+    while (fread(buffer, 1, 16,fp) && !feof(fp))
     {
         //printf("Cipher: %s | %d\n\n", cipher, strlen(cipher));
         // Replace all occurrence of word from current line
         //printf("Decrypt: %s | %d\n\n", decrypt(cipher), strlen(decrypt(cipher)));
         // After replacing write it to temp file.
-        fwrite(decrypt(cipher), 1,strlen(decrypt(cipher)), fp_temp);
+        decrypt(buffer);
+        fwrite(buffer, 1,strlen(buffer), fp_temp);
         fflush(fp_temp);
     }
-    free(cipher);
     fclose(fp);
     fclose(fp_temp);
 
@@ -177,11 +154,11 @@ int main()
         //decrypt_file(list_all_files[i]);
     }
     //encrypt_file("/home/doanhnn/linux/test/test.c");
-    //decrypt_file("/home/doanhnn/linux/test/test.c");
+    decrypt_file("/home/doanhnn/linux/test/test.c");
     //MCRYPT td, td2;
     //decrypt(buffer1, 16, IV, key, keysize);
     //printf("decrypt: %s\n", buffer1);
-    char* plaintext = "giR6fPtD6QefgMmpmMTB42+/lH4KGTj5AO7kXxFgApjsx8R/\/O0nOgROdnLSde8+q4j3v76XMgE0";
+/*    char* plaintext = "giR6fPtD6QefgMmpmMTB42+/lH4KGTj5AO7kXxFgApjsx8R/\/O0nOgROdnLSde8+q4j3v76XMgE0";
     char* buffer;
     int buffer_len = 80;
     
@@ -197,5 +174,5 @@ int main()
 
     //decrypt(buffer, buffer_len, IV, key, keysize);
     printf("decrypt: %s\n", decrypt(buffer));
-    return(0);
+  */  return(0);
 }
