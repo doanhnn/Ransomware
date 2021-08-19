@@ -11,8 +11,10 @@ int count_files = 0;
 char* IV = "AAAAAAAAAAAAAAAA";
 char* key = "0123456789abcdef";
 int keysize = 16; /* 128 bits */
-int buffer_length = 17;
-unsigned char buffer[17];
+int buffer_length = 16;
+unsigned char buffer[16];
+//typedef unsigned char byte;
+//byte* buffer;
 
 void list_files(char * path){
     DIR *d = opendir(path);
@@ -73,21 +75,21 @@ void encrypt_file(char * path){
         printf("Please check whether file exists and you have read/write privilege.\n");
         exit(EXIT_SUCCESS);
     }
+    //buffer = (byte*)malloc(buffer_length);
     fseek(fp, SEEK_SET, 0);
-
     while (!feof(fp))
     {
-        fread(buffer, 1, 16,fp);
-        if (feof(fp)){
-            int i = 0;
-            while(buffer[i] != '\n' && i < 16) i++;
-            buffer[i] = '\0';
-        }
-        printf("Plaintext: %s | %d\n\n", buffer, strlen(buffer));
+        fread(buffer, 16, 1, fp);
+        //if (feof(fp)){
+        //    int i = 0;
+        //    while(buffer[i] != '\n' && i < 16) i++;
+        //    buffer[i] = '\0';
+        //}
+        //if(strlen(buffer) < 16) printf("Plaintext: | %d\n\n", strlen(buffer));
         encrypt(buffer);
-        printf("Encrypt: %s | %d\n\n", buffer,strlen(buffer));
+        printf("Encrypt: %d | %d\n\n", sizeof(buffer), strlen(buffer));
 
-        fwrite(buffer, 1, 16, fp_temp);
+        fwrite(buffer, 16, 1, fp_temp);
         fflush(fp_temp);
         memset(buffer, '\0', buffer_length);
     }
@@ -116,17 +118,19 @@ void decrypt_file(char * path){
         printf("Please check whether file exists and you have read/write privilege.\n");
         exit(EXIT_SUCCESS);
     }
-    //fseek(fp, SEEK_SET, 0);
-
-    while (fread(buffer, 1, 16,fp) && !feof(fp))
+    fseek(fp, SEEK_SET, 0);
+    while (!feof(fp))
     {
-        //printf("Cipher: %s | %d\n\n", cipher, strlen(cipher));
+        fread(buffer, 16, 1, fp);
         // Replace all occurrence of word from current line
         //printf("Decrypt: %s | %d\n\n", decrypt(cipher), strlen(decrypt(cipher)));
         // After replacing write it to temp file.
         decrypt(buffer);
-        fwrite(buffer, 1,strlen(buffer), fp_temp);
+        printf("Cipher: %d | %d\n\n", sizeof(buffer), strlen(buffer));
+
+        fwrite(buffer, sizeof(buffer), 1, fp_temp);
         fflush(fp_temp);
+        memset(buffer, '\0', buffer_length);
     }
     fclose(fp);
     fclose(fp_temp);
